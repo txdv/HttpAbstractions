@@ -241,11 +241,6 @@ namespace Microsoft.Net.Http.Headers
 
         internal static bool TryStringToDate(string input, out DateTimeOffset result)
         {
-            if (input == null)
-            {
-                return false;
-            }
-
             // Try the various date formats in the order listed above.
             // We should accept a wide verity of common formats, but only output RFC 1123 style dates.
             if (DateTimeOffset.TryParseExact(input, DateFormats, DateTimeFormatInfo.InvariantInfo,

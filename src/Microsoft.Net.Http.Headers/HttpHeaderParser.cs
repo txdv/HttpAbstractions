@@ -61,11 +61,11 @@ namespace Microsoft.Net.Http.Headers
             // If a parser returns an empty list, it means there was no value, but that's valid (e.g. "Accept: "). The caller
             // can ignore the value.
             parsedValues = null;
+            var results = new List<T>();
             if (values == null)
             {
                 return false;
             }
-            var results = new List<T>();
             foreach (var value in values)
             {
                 int index = 0;
