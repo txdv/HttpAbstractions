@@ -238,48 +238,51 @@ namespace Microsoft.Net.Http.Headers
             return false;
         }
 
-        private static bool TryParseInt64FromHeaderValue(int startIndex, string headerValue, out long value)
+        private static unsafe bool TryParseInt64FromHeaderValue(int startIndex, string headerValue, out long value)
         {
-            var found = false;
-            while (startIndex != headerValue.Length)
+            fixed (char* ptr = headerValue)
             {
-                var c = headerValue[startIndex];
-                if (c == '=')
+                var found = false;
+                var length = 0;
+
+                var ch = (ushort*)ptr;
+                ch += startIndex;
+                var end = ch + headerValue.Length;
+
+                while (ch < end)
                 {
-                    found = true;
-                }
-                else if (c != ' ')
-                {
-                    break;
-                }
-                ++startIndex;
-            }
-            if (found)
-            {
-                var endIndex = startIndex;
-                while (endIndex < headerValue.Length)
-                {
-                    var c = headerValue[endIndex];
-                    if ((c >= '0') && (c <= '9'))
+                    if (*ch == 0x3D) // "="
                     {
-                        endIndex++;
+                        found = true;
                     }
-                    else
+                    else if (*ch != 0x20) // " "
                     {
                         break;
                     }
+                    ch++;
+                    startIndex++;
                 }
-                var length = endIndex - startIndex;
-                if (length > 0)
+
+                if (found)
                 {
-                    if (TryParseInt64(new StringSegment(headerValue, startIndex, length), out value))
+                    while (ch < end && (ushort)(*ch - 0x30) <= 9)
                     {
-                        return true;
+                        ch++;
+                        length++;
+                    }
+
+                    if (length > 0)
+                    {
+                        if (TryParseInt64(new StringSegment(headerValue, startIndex, length), out value))
+                        {
+                            return true;
+                        }
                     }
                 }
+
+                value = 0;
+                return false;
             }
-            value = 0;
-            return false;
         }
 
         internal static bool TryParseInt32(string value, out int result)
