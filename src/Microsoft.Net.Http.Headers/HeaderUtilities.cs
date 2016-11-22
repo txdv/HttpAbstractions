@@ -203,8 +203,10 @@ namespace Microsoft.Net.Http.Headers
         // e.g. { "headerValue=10, targetHeaderValue=30", "headerValue2=20" }
         public static bool TryParseTimeSpan(StringValues headerValues, string targetValue, out TimeSpan? value)
         {
-            foreach (var headerValue in headerValues)
+            for (var i = 0; i < headerValues.Count; i++)
             {
+                var headerValue = headerValues[i];
+
                 var index = headerValue.IndexOf(targetValue, StringComparison.OrdinalIgnoreCase);
                 if (index != -1)
                 {
@@ -224,9 +226,9 @@ namespace Microsoft.Net.Http.Headers
 
         public static bool Contains(StringValues headerValues, string targetValue)
         {
-            foreach (var headerValue in headerValues)
+            for (var i = 0; i < headerValues.Count; i++)
             {
-                var index = headerValue.IndexOf(targetValue, StringComparison.OrdinalIgnoreCase);
+                var index = headerValues[i].IndexOf(targetValue, StringComparison.OrdinalIgnoreCase);
                 if (index != -1)
                 {
                     return true;
