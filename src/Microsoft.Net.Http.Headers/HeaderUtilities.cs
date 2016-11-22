@@ -292,6 +292,12 @@ namespace Microsoft.Net.Http.Headers
 
         internal static unsafe bool TryParseInt32(StringSegment value, out int result)
         {
+            if (string.IsNullOrEmpty(value.Buffer))
+            {
+                result = 0;
+                return false;
+            }
+
             result = 0;
             fixed (char* ptr = value.Buffer)
             {
@@ -301,6 +307,7 @@ namespace Microsoft.Net.Http.Headers
 
                 if (ch == end)
                 {
+                    result = 0;
                     return false;
                 }
 
@@ -312,12 +319,23 @@ namespace Microsoft.Net.Http.Headers
                     ch++;
                 }
 
-                return ch == end;
+                if (ch != end)
+                {
+                    result = 0;
+                    return true;
+                }
+                return true;
             }
         }
 
         public static unsafe bool TryParseInt64(StringSegment value, out long result)
         {
+            if (string.IsNullOrEmpty(value.Buffer))
+            {
+                result = 0;
+                return false;
+            }
+
             result = 0L;
             fixed (char* ptr = value.Buffer)
             {
@@ -327,6 +345,7 @@ namespace Microsoft.Net.Http.Headers
 
                 if (ch == end)
                 {
+                    result = 0;
                     return false;
                 }
 
@@ -338,7 +357,12 @@ namespace Microsoft.Net.Http.Headers
                     ch++;
                 }
 
-                return ch == end;
+                if (ch != end)
+                {
+                    result = 0;
+                    return true;
+                }
+                return true;
             }
         }
 
