@@ -199,8 +199,27 @@ namespace Microsoft.Net.Http.Headers
             return current;
         }
 
-        // Try to get the value of a specific header from a list of headers
-        // e.g. { "headerValue=10, targetHeaderValue=30", "headerValue2=20" }
+        /// <summary>
+        /// Try to find a target header value among the set of given header values and parse it as a
+        /// <see cref="TimeSpan"/>.
+        /// </summary>
+        /// <param name="headerValues">
+        /// The <see cref="StringValues"/> containing the set of header values to search.
+        /// </param>
+        /// <param name="targetValue">
+        /// The target header value to look for.
+        /// </param>
+        /// <param name="value">
+        /// When this method returns, contains the parsed <see cref="TimeSpan"/>, if the parsing succeeded, or
+        /// null if the parsing failed. The conversion fails if the <paramref name="targetValue"/> was not
+        /// found or could not be parsed as a <see cref="TimeSpan"/>. This parameter is passed uninitialized;
+        /// any value originally supplied in result will be overwritten.
+        /// </param>
+        /// <returns>
+        /// <code>true</code> if <paramref name="targetValue"/> is found and successfully parsed; otherwise,
+        /// <code>false</code>.
+        /// </returns>
+        // e.g. { "headerValue=10, targetHeaderValue=30" }
         public static bool TryParseTimeSpan(StringValues headerValues, string targetValue, out TimeSpan? value)
         {
             for (var i = 0; i < headerValues.Count; i++)
@@ -224,6 +243,19 @@ namespace Microsoft.Net.Http.Headers
             return false;
         }
 
+        /// <summary>
+        /// Check if a target header value exists among the set of given header values.
+        /// </summary>
+        /// <param name="headerValues">
+        /// The <see cref="StringValues"/> containing the set of header values to search.
+        /// </param>
+        /// <param name="targetValue">
+        /// The target header value to look for.
+        /// </param>
+        /// <returns>
+        /// <code>true</code> if <paramref name="targetValue"/> is contained in <paramref name="headerValues"/>;
+        /// otherwise, <code>false</code>.
+        /// </returns>
         public static bool Contains(StringValues headerValues, string targetValue)
         {
             for (var i = 0; i < headerValues.Count; i++)
@@ -238,7 +270,7 @@ namespace Microsoft.Net.Http.Headers
             return false;
         }
 
-        private static unsafe bool TryParseInt64FromHeaderValue(int startIndex, string headerValue, out long value)
+        private static unsafe bool TryParseInt64FromHeaderValue(int startIndex, string headerValue, out long result)
         {
             fixed (char* ptr = headerValue)
             {
@@ -273,14 +305,14 @@ namespace Microsoft.Net.Http.Headers
 
                     if (length > 0)
                     {
-                        if (TryParseInt64(new StringSegment(headerValue, startIndex, length), out value))
+                        if (TryParseInt64(new StringSegment(headerValue, startIndex, length), out result))
                         {
                             return true;
                         }
                     }
                 }
 
-                value = 0;
+                result = 0;
                 return false;
             }
         }
@@ -304,6 +336,7 @@ namespace Microsoft.Net.Http.Headers
         /// greater than Int64.MaxValue. This parameter is passed uninitialized; any value originally supplied in
         /// result will be overwritten.
         /// </param>
+        /// <returns><code>true</code> if parsing succeeded; otherwise, <code>false</code>.</returns>
         public static bool TryParseInt64(string value, out long result)
         {
             return TryParseInt64(new StringSegment(value), out result);
@@ -369,6 +402,7 @@ namespace Microsoft.Net.Http.Headers
         /// represents a number greater than Int64.MaxValue. This parameter is passed uninitialized; any value
         /// originally supplied in result will be overwritten.
         /// </param>
+        /// <returns><code>true</code> if parsing succeeded; otherwise, <code>false</code>.</returns>
         public static unsafe bool TryParseInt64(StringSegment value, out long result)
         {
             if (string.IsNullOrEmpty(value.Buffer))
