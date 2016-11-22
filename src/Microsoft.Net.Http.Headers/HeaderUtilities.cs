@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics.Contracts;
 using System.Globalization;
+using Microsoft.Extensions.Primitives;
 
 namespace Microsoft.Net.Http.Headers
 {
@@ -198,6 +199,87 @@ namespace Microsoft.Net.Http.Headers
             return current;
         }
 
+        // Try to get the value of a specific header from a list of headers
+        // e.g. "header1=10, header2=30"
+        public static bool TryParseTimeSpan(StringValues headerValues, string targetValue, out TimeSpan? value)
+        {
+            foreach (var headerValue in headerValues)
+            {
+                var index = headerValue.IndexOf(targetValue, StringComparison.OrdinalIgnoreCase);
+                if (index != -1)
+                {
+                    index += targetValue.Length;
+                    long seconds;
+                    if (!TryParseInt64FromHeaderValue(index, headerValue, out seconds))
+                    {
+                        break;
+                    }
+                    value = TimeSpan.FromSeconds(seconds);
+                    return true;
+                }
+            }
+            value = null;
+            return false;
+        }
+
+        public static bool Contains(StringValues headerValues, string targetValue)
+        {
+            foreach (var headerValue in headerValues)
+            {
+                var index = headerValue.IndexOf(targetValue, StringComparison.OrdinalIgnoreCase);
+                if (index != -1)
+                {
+                    return true;
+                }
+            }
+
+            return false;
+        }
+
+        private static bool TryParseInt64FromHeaderValue(int startIndex, string headerValue, out long value)
+        {
+            var found = false;
+            while (startIndex != headerValue.Length)
+            {
+                var c = headerValue[startIndex];
+                if (c == '=')
+                {
+                    found = true;
+                }
+                else if (c != ' ')
+                {
+                    break;
+                }
+                ++startIndex;
+            }
+            if (found)
+            {
+                var endIndex = startIndex;
+                while (endIndex < headerValue.Length)
+                {
+                    var c = headerValue[endIndex];
+                    if ((c >= '0') && (c <= '9'))
+                    {
+                        endIndex++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                var length = endIndex - startIndex;
+                if (length > 0)
+                {
+                    if (TryParseInt64(new StringSegment(headerValue, startIndex, length), out value))
+                    {
+                        return true;
+                    }
+                }
+            }
+            value = 0;
+            return false;
+        }
+
         internal static bool TryParseInt32(string value, out int result)
         {
             return int.TryParse(value, NumberStyles.None, NumberFormatInfo.InvariantInfo, out result);
@@ -206,6 +288,58 @@ namespace Microsoft.Net.Http.Headers
         public static bool TryParseInt64(string value, out long result)
         {
             return long.TryParse(value, NumberStyles.None, NumberFormatInfo.InvariantInfo, out result);
+        }
+
+        internal static unsafe bool TryParseInt32(StringSegment value, out int result)
+        {
+            result = 0;
+            fixed (char* ptr = value.Buffer)
+            {
+                var ch = (ushort*)ptr;
+                ch += value.Offset;
+                var end = ch + value.Length;
+
+                if (ch == end)
+                {
+                    return false;
+                }
+
+                ushort digit = 0;
+                while (ch < end && (digit = (ushort)(*ch - 0x30)) <= 9)
+                {
+                    result *= 10;
+                    result += digit;
+                    ch++;
+                }
+
+                return ch == end;
+            }
+        }
+
+        public static unsafe bool TryParseInt64(StringSegment value, out long result)
+        {
+            result = 0L;
+            fixed (char* ptr = value.Buffer)
+            {
+                var ch = (ushort*)ptr;
+                ch += value.Offset;
+                var end = ch + value.Length;
+
+                if (ch == end)
+                {
+                    return false;
+                }
+
+                ushort digit = 0;
+                while (ch < end && (digit = (ushort)(*ch - 0x30)) <= 9)
+                {
+                    result *= 10;
+                    result += digit;
+                    ch++;
+                }
+
+                return ch == end;
+            }
         }
 
         public static string FormatInt64(long value)
