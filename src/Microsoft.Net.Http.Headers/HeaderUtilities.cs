@@ -200,7 +200,7 @@ namespace Microsoft.Net.Http.Headers
         }
 
         // Try to get the value of a specific header from a list of headers
-        // e.g. "header1=10, header2=30"
+        // e.g. { "headerValue=10, targetHeaderValue=30", "headerValue2=20" }
         public static bool TryParseTimeSpan(StringValues headerValues, string targetValue, out TimeSpan? value)
         {
             foreach (var headerValue in headerValues)
