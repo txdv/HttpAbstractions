@@ -71,5 +71,54 @@ namespace Microsoft.Net.Http.Headers
             TimeSpan? value;
             Assert.False(HeaderUtilities.TryParseTimeSpan(new StringValues(headerValues), targetValue, out value));
         }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        [InlineData("-1")]
+        [InlineData("a")]
+        [InlineData("1.1")]
+        [InlineData("9223372036854775808")] // long.MaxValue + 1
+        public void TryParseInt64_Fails(string valueString)
+        {
+            long value = 1;
+            Assert.False(HeaderUtilities.TryParseInt64(valueString, out value));
+            Assert.Equal(0, value);
+        }
+
+        [Theory]
+        [InlineData("0", 0)]
+        [InlineData("9223372036854775807", 9223372036854775807)] // long.MaxValue
+        public void TryParseInt64_Succeeds(string valueString, long expected)
+        {
+            long value = 1;
+            Assert.True(HeaderUtilities.TryParseInt64(valueString, out value));
+            Assert.Equal(expected, value);
+        }
+
+        [Theory]
+        [InlineData("")]
+        [InlineData(null)]
+        [InlineData("-1")]
+        [InlineData("a")]
+        [InlineData("1.1")]
+        [InlineData("1,000")]
+        [InlineData("2147483648")] // int.MaxValue + 1
+        public void TryParseInt32_Fails(string valueString)
+        {
+            int value = 1;
+            Assert.False(HeaderUtilities.TryParseInt32(valueString, out value));
+            Assert.Equal(0, value);
+        }
+
+        [Theory]
+        [InlineData("0", 0)]
+        [InlineData("2147483647", 2147483647)] // int.MaxValue
+        public void TryParseInt32_Succeeds(string valueString, long expected)
+        {
+            int value = 1;
+            Assert.True(HeaderUtilities.TryParseInt32(valueString, out value));
+            Assert.Equal(expected, value);
+        }
     }
 }

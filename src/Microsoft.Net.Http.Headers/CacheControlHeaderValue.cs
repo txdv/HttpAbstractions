@@ -11,18 +11,18 @@ namespace Microsoft.Net.Http.Headers
 {
     public class CacheControlHeaderValue
     {
-        public const string MaxAgeString = "max-age";
-        public const string MaxStaleString = "max-stale";
-        public const string MinFreshString = "min-fresh";
-        public const string MustRevalidateString = "must-revalidate";
-        public const string NoCacheString = "no-cache";
-        public const string NoStoreString = "no-store";
-        public const string NoTransformString = "no-transform";
-        public const string OnlyIfCachedString = "only-if-cached";
-        public const string PrivateString = "private";
-        public const string ProxyRevalidateString = "proxy-revalidate";
-        public const string PublicString = "public";
-        public const string SharedMaxAgeString = "s-maxage";
+        private const string MaxAgeString = "max-age";
+        private const string MaxStaleString = "max-stale";
+        private const string MinFreshString = "min-fresh";
+        private const string MustRevalidateString = "must-revalidate";
+        private const string NoCacheString = "no-cache";
+        private const string NoStoreString = "no-store";
+        private const string NoTransformString = "no-transform";
+        private const string OnlyIfCachedString = "only-if-cached";
+        private const string PrivateString = "private";
+        private const string ProxyRevalidateString = "proxy-revalidate";
+        private const string PublicString = "public";
+        private const string SharedMaxAgeString = "s-maxage";
 
         // The Cache-Control header is special: It is a header supporting a list of values, but we represent the list
         // as _one_ instance of CacheControlHeaderValue. I.e we set 'SupportsMultipleValues' to 'true' since it is
