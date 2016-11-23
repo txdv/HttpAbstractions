@@ -278,8 +278,8 @@ namespace Microsoft.Net.Http.Headers
                 var length = 0;
 
                 var ch = (ushort*)ptr;
-                ch += startIndex;
                 var end = ch + headerValue.Length;
+                ch += startIndex;
 
                 while (ch < end)
                 {
