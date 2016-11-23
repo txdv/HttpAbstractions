@@ -411,12 +411,11 @@ namespace Microsoft.AspNetCore.Http.Internal
                 throw new ArgumentNullException(nameof(headers));
             }
 
-            const NumberStyles styles = NumberStyles.AllowLeadingWhite | NumberStyles.AllowTrailingWhite;
             long value;
             var rawValue = headers[HeaderNames.ContentLength];
             if (rawValue.Count == 1 &&
                 !string.IsNullOrWhiteSpace(rawValue[0]) &&
-                long.TryParse(rawValue[0], styles, CultureInfo.InvariantCulture, out value))
+                HeaderUtilities.TryParseInt64(new StringSegment(rawValue[0]).Trim(), out value))
             {
                 return value;
             }
