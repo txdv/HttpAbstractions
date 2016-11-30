@@ -20,7 +20,7 @@ namespace Microsoft.AspNetCore.Http
         };
 
         /// <summary>
-        /// Gets the <see cref="HttpContext"/> for this request.
+        /// Gets the <see cref="HttpContext"/> for this response.
         /// </summary>
         public abstract HttpContext HttpContext { get; }
 
